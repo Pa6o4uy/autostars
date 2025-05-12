@@ -11,8 +11,6 @@ import os
 import base64
 import re
 import io
-import uuid
-import hashlib
 import datetime
 import time
 import random
@@ -528,7 +526,7 @@ class PaymentProcessor:
                 self.task_queue.task_done()
 
     async def process_payment(self, c: Cardinal, buyer_chat_id: int, username: str, stars_quantity: int, orderID: str):
-        await asyncio.to_thread(check_activation)
+
 
         retry_count = 0
         max_retries = 3
@@ -1584,25 +1582,25 @@ def init_commands(c: Cardinal):
         try:
             c.telegram.bot.answer_callback_query(callback_query_id)
         except:
-pass
+            pass
 
-try:
-    if data == "toggle_autosale":
-        if RUNNING:
-            RUNNING = False
-            c.telegram.bot.send_message(
-                chat_id,
-                sanitize_telegram_text("🛑 Автопродажа отключена.")
-            )
-        else:
-            future = asyncio.run_coroutine_threadsafe(check_wallet_balance(), payment_processor.loop)
-            balance_ton = future.result(timeout=10)
-            RUNNING = True
-            c.telegram.bot.send_message(
-                chat_id,
-                sanitize_telegram_text(f"🚀 Автопродажа включена. Баланс: {balance_ton} TON")
-            )
-        update_config_panel(c, chat_id, message_id)
+        try:
+            if data == "toggle_autosale":
+                if RUNNING:
+                    RUNNING = False
+                    c.telegram.bot.send_message(
+                        chat_id,
+                        sanitize_telegram_text("🛑 Автопродажа отключена.")
+                    )
+                else:
+                    future = asyncio.run_coroutine_threadsafe(check_wallet_balance(), payment_processor.loop)
+                    balance_ton = future.result(timeout=10)
+                    RUNNING = True
+                    c.telegram.bot.send_message(
+                        chat_id,
+                        sanitize_telegram_text(f"🚀 Автопродажа включена. Баланс: {balance_ton} TON")
+                    )
+                update_config_panel(c, chat_id, message_id)
 
             elif data == "toggle_lots":
                 subcategory = c.account.get_subcategory(FunPayAPI.types.SubCategoryTypes.COMMON, SUBCATEGORY_ID)
