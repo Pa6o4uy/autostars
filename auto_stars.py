@@ -21,18 +21,6 @@ import sys
 import atexit
 from typing import TYPE_CHECKING, Dict, List, Tuple, Optional
 
-
-def check_activation() -> bool:
-    global IS_ACTIVATED
-    try:
-        result = check_activation_sync()
-        IS_ACTIVATED = result
-        return result
-    except Exception as e:
-        return False
-
-check_activation()
-
 try:
     import matplotlib.pyplot as plt
     import pymysql
@@ -1598,32 +1586,23 @@ def init_commands(c: Cardinal):
         except:
             pass
 
-        try:
-            if data == "toggle_autosale":
-                if RUNNING:
-                    RUNNING = False
-                    c.telegram.bot.send_message(
-                        chat_id,
-                        sanitize_telegram_text("🛑 Автопродажа отключена.")
-                    )
-                else:
-                    mac_id = hex(uuid.getnode()).replace('0x', '')
-                    check_activation()
-                    if not IS_ACTIVATED:
-                        c.telegram.bot.send_message(
-                            chat_id,
-                            sanitize_telegram_text(
-                                f"❌ Бот не активирован. Автопродажа не может быть включена.\n")
-                        )
-                    else:
-                        future = asyncio.run_coroutine_threadsafe(check_wallet_balance(), payment_processor.loop)
-                        balance_ton = future.result(timeout=10)
-                        RUNNING = True
-                        c.telegram.bot.send_message(
-                            chat_id,
-                            sanitize_telegram_text(f"🚀 Автопродажа включена. Баланс: {balance_ton} TON")
-                        )
-                update_config_panel(c, chat_id, message_id)
+ try:
+    if data == "toggle_autosale":
+        if RUNNING:
+            RUNNING = False
+            c.telegram.bot.send_message(
+                chat_id,
+                sanitize_telegram_text("🛑 Автопродажа отключена.")
+            )
+        else:
+            future = asyncio.run_coroutine_threadsafe(check_wallet_balance(), payment_processor.loop)
+            balance_ton = future.result(timeout=10)
+            RUNNING = True
+            c.telegram.bot.send_message(
+                chat_id,
+                sanitize_telegram_text(f"🚀 Автопродажа включена. Баланс: {balance_ton} TON")
+            )
+        update_config_panel(c, chat_id, message_id)
 
             elif data == "toggle_lots":
                 subcategory = c.account.get_subcategory(FunPayAPI.types.SubCategoryTypes.COMMON, SUBCATEGORY_ID)
