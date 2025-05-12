@@ -1584,9 +1584,9 @@ def init_commands(c: Cardinal):
         try:
             c.telegram.bot.answer_callback_query(callback_query_id)
         except:
-            pass
+pass
 
- try:
+try:
     if data == "toggle_autosale":
         if RUNNING:
             RUNNING = False
